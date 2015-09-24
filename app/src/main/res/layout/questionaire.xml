@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#dddd"
+    android:weightSum="1"
+    android:id="@+id/questionnaire">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"></LinearLayout>
+
+    <TextView
+        android:id="@+id/TextViewTitle_one"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="If you had to vote one of the candidates into office as President today, who would it be?"
+        android:textSize="10pt">
+    </TextView>
+    <Spinner
+        android:id="@+id/SpinnerFeedbackType"
+        android:layout_height="wrap_content"
+        android:prompt="@string/feedbackprompt"
+        android:layout_width="fill_parent"
+        android:entries="@array/feedbacktypelist"
+        android:spinnerMode="dropdown">
+    </Spinner>
+
+
+
+    <TextView
+        android:id="@+id/TextViewTitle_two"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="weekly question text"
+        android:textSize="10pt">
+    </TextView>
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:orientation="horizontal">
+    </RadioGroup>
+
+
+    <Button
+        android:id="@+id/ButtonSendFeedback"
+        android:layout_height="68dp"
+        android:text="@string/feedbackbutton"
+        android:onClick="sendFeedback"
+        android:layout_width="fill_parent">
+    </Button>
+
+</LinearLayout>

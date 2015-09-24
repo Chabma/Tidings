@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Amaranth">
+    <style>
+        #vid {
+        position: absolute;
+        background: #FFFFFF;
+        display: none;
+        height: 90%;
+        width: 100%;
+        left: 0px;
+        top: 0px;
+        }
+
+        #back_button{
+        position: absolute;
+        top: 100px;
+        left: 100px;
+        }
+
+        #button1{
+        position: absolute;
+        top: 40px;
+        left: 285px;
+        z-index: -1;
+        }
+
+        #button2{
+        position: absolute;
+        top: 42px;
+        left: 225px;
+        z-index: -1;
+        }
+
+        #vid_player{
+        background: #111111;
+        top: 30%;
+		position: absolute;
+        }
+
+        #graph{
+        position: absolute;
+        }
+
+        .enteringVideo {
+        -webkit-animation-name: vid_enter; /* Chrome, Safari, Opera */
+        -webkit-animation-duration: 2s; /* Chrome, Safari, Opera */
+        animation-name: vid_enter;
+        animation-duration: 2s;
+        animation-fill-mode: forwards;
+        }
+
+        .exitingVideo {
+        -webkit-animation-name: vid_exit; /* Chrome, Safari, Opera */
+        -webkit-animation-duration: 2s; /* Chrome, Safari, Opera */
+        animation-name: vid_exit;
+        animation-duration: 2s;
+        animation-fill-mode: forwards;
+        }
+
+        .enteringGraph {
+        -webkit-animation-name: graph_enter;
+        -webkit-animation-duration: 2s; /* Chrome, Safari, Opera */
+        -webkit-animation-iteration-count: 1; /* Chrome, Safari, Opera */
+        animation-name: graph_enter;
+        animation-duration: 2s;
+        animation-fill-mode: forwards;
+        }
+
+        .exitingGraph {
+        -webkit-animation-name: graph_exit; /* Chrome, Safari, Opera */
+        -webkit-animation-duration: 2s; /* Chrome, Safari, Opera */
+        -webkit-animation-iteration-count: 1; /* Chrome, Safari, Opera */
+        animation-name: graph_exit;
+        animation-duration: 2s;
+        animation-fill-mode: forwards;
+        }
+
+        /* Chrome, Safari, Opera */
+        @-webkit-keyframes vid_enter {
+        0%   {left:100%; top:0px;}
+        100% {left:0%; top:0px;}
+        }
+
+        /* Standard syntax */
+        @keyframes vid_enter {
+        0%   {left:100%; top:0px;}
+        100% {left:0%; top:0px;}
+        }
+
+        /* Chrome, Safari, Opera */
+        @-webkit-keyframes vid_exit {
+        0%   {left:0%; top:0px;}
+        100% {left:100%; top:0px;}
+        }
+
+        /* Standard syntax */
+        @keyframes vid_exit {
+        0%   {left:0%; top:0px;}
+        100% {left:100%; top:0px;}
+        }
+
+        /* Chrome, Safari, Opera */
+        @-webkit-keyframes graph_enter {
+        0%   {left:-100%; top:0px;}
+        100% {left:0%; top:0px;}
+        }
+
+        /* Standard syntax */
+        @keyframes graph_enter {
+        0%   {left:-100%; top:0px;}
+        100% {left:0%; top:0px;}
+        }
+
+        /* Chrome, Safari, Opera */
+        @-webkit-keyframes graph_exit {
+        0%   {left:0%; top:0px;}
+        100% {left:-100%; top:0px;}
+        }
+
+        /* Standard syntax */
+        @keyframes graph_exit {
+        0%   {left:0%; top:0px;}
+        100% {left:-100%; top:0px;}
+        }
+
+        .node {
+        stroke: #fff;
+        }
+
+        .link {
+        stroke: #999;
+        stroke-opacity: .6;
+        }
+
+        .noselect {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        }
+
+        .legend rect {
+        fill:white;
+        stroke:black;
+        opacity:0.8;
+        }
+        .circle {
+        height: 300px;
+        }
+        .circle > svg {
+        height: 100%;
+        display: block;
+        }
+    </style>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script type="text/javascript" src="file:///android_asset/js/d3.js" ></script>
+    <script src="file:///android_asset/js/fisheye.js"></script>
+    <script src="file:///android_asset/js/d3.legend.js"></script>
+	<link href="http://vjs.zencdn.net/4.12/video-js.css" rel="stylesheet">
+	<script src="http://vjs.zencdn.net/4.12/video.js"></script>
+
+</head>
+<body>
+
+<div id="graph"> <input type="image"  id="button1" src="file:///android_asset/img/ic_live_tv_grey_24dp_2x.png" onmousedown="startVideoFunc()"  width="40" height="40" >
+    <input type="image"  id="button2" src="file:///android_asset/img/ic_open_in_browser_grey_24dp_2x.png" onmousedown="startWebSearchFunc()"  width="40" height="40" ></div>
+
+<div class="circle" id="circle"></div>
+
+<div id="vid" width="100%">
+
+    <button id="back_button" onmousedown="document.getElementById('vid').className = 'exitingVideo'; document.getElementById('graph').className = 'enteringGraph'; console.log('clicked back button');">Back to Nodes</button>
+
+    <video id="vid_player" class="video-js vjs-default-skin" controls preload="auto" width="100%" height="50%" poster="" data-setup="{}">
+        <source src=""  type="video/mp4">
+        <source src=""  type="video/webm">
+    </video>
+    <div style="position: absolute; bottom:50px; left:50px">
+    <button onmousedown="changeChannel(12)">MSNBC Result</button>
+    <button onmousedown="changeChannel(10)">FOX Result</button>
+    <button onmousedown="changeChannel(3)">CNN Result</button>
+    </div>
+</div>
+<script src="https://cdn.rawgit.com/kimmobrunfeldt/progressbar.js/0.8.1/dist/progressbar.js"></script>
+
+<script type="text/javascript">
+
+    $.support.cors=true;
+	var trashWords = ['THE', 'INTERESTING', 'BETTER', 'STATE', 'MS', 'STATES', 'BELIEVE', 'LEARN', 'MR', 'GREAT', 'MRS', 'FIRST', 'THROUGH', 'READY', 'OTHER', 'DOCTOR', 'OFF', 'SAVE', 'MILES',  'WARNER', 'ENJOY', 'WIFI', 'NEW', 'POSITIVE', 'PICTURE', 'BALANCED', 'OFFERED', 'OPINION',  'RISE', 'RECOGNIZED', 'MINUTES', 'YIELDS', 'MESSAGE', 'ONE', 'TODAY', 'UH', 'AMERICA', 'TWO', 'BIG', 'FAVORITE', 'DIDNT', 'FRONT', 'NEARLY', 'ALMOST',  'TRIED', 'FEEL', 'MORNING', 'ANOTHER', 'LINE', 'QUESTION', 'YEARS', 'GOVERNOR', 'GOVERNORS', 'SENATOR', 'SENATORS', 'CANDIDATES', 'CANDIDATE', 'KNOW', 'KNEW', 'GAVE', 'ALREADY', 'W', 'ASKED', 'OFFICERS', 'CALLER', 'SPEAK', 'BECOME', 'FORWARD', 'THEYVE', 'ALONG',  'ABSOLUTELY','ANYONE', 'TALKED', 'PRETTY', 'QUOTE', 'EFFECTS', 'BREAKING', 'DURING', 'COVERED', 'KNOWS', 'ALREADY', 'WORKS', 'REASON', 'POSSIBLE', 'WOULDNT', 'ANYONE', 'SEEMS', 'CLOSE', 'CALLING', 'NEEDS', 'POSSIBLE', 'CERTAINLY', 'SENSE', 'ACCORDING', 'M', 'EITHER', 'BUY', 'ISSUES', 'QUICKLY', 'CHANGE',  'THREE', 'HANDS', 'NEEDED', 'YOUVE', 'MISSED', 'OTHERS', 'ROAD', 'STRONGER', 'CONTENT', 'SET', 'UNDERSTAND', 'BUILDING', 'FUN', 'STOCKS', 'RATES', 'SELL', 'WATCHING', 'PRESS', 'COURSE', 'WANTED', 'SECRET', 'OBVIOUSLY', 'LESS', 'COUPLE', 'GETS', 'MIDDLE', 'AHEAD', 'SORT', 'HUNDREDS', 'IDEA', 'CLEAR', 'ENFORCEMENT', 'OPEN', 'MOMENT', 'SERVICE', 'BRIEFING', 'BRIEFING', 'BUYING', 'TERMS', 'TERM', 'EXCHANGE', 'TRADING', 'JOINS', 'MAKES', 'RETURN', 'VALUE', 'MARKETS', 'PAID', 'BANK', 'CIALIS', 'GETS', 'TIM', 'BOX', 'PIECE', 'EARNINGS', 'SPONSORSHIP', 'COUPLE', 'INTEREST', 'KENNY', 'SINCE', 'WOMAN', 'END', 'NUMBERS', 'BUSINESSES', 'JIM', 'SMALL', 'SQUAWK', 'COMPLETE', 'POST', 'LEAVE', 'DEAL', 'YESTERDAY', 'BELL', 'STOCK', 'COMPANY', 'JOBS', 'OPENING', 'KIDS', 'AREA', 'SHOT', 'BILL', 'MILITARY', 'STRATEGY', 'WIN', 'BLOOD', 'PAY', 'RUNNING', 'SITUATION', 'NOTHING', 'BRING', 'FACE', 'MONTHS', 'SERIOUS', 'HAPPENING', 'LATEST', 'QUESTIONS', 'CAUGHT', 'REACTION', 'HIT', 'WEEKS', 'BAD', 'TRAIL', 'PUBLIC', 'PROBABLY', 'ABLE', 'HAPPEN', 'BETWEEN', 'ONCE', 'FEDERAL', 'ACROSS', 'HEARD', 'AMERICANS','WASNT', 'HEART', 'COM', 'FOUND', 'REAL', 'ANYTHING', 'UNITED', 'WANTS', 'UNTIL', 'UNDER', 'EXACTLY', 'MIGHT', 'ROOM', '', 'SEARCH', 'JOINING', 'ISNT', 'REPORT', 'INCLUDING', 'ISSUE', 'HEARING', 'MONEY', 'TAKEN', 'PAST', 'HAND', 'LEAST', 'FACILITY', 'DEPARTMENT', 'PLUS', 'IMPORTANT', 'WORKED', 'TOOK', 'EVERYONE', 'HOUR', 'CALLED', 'COMES', 'SAME', 'TOLD', 'CALL', 'D', 'WHETHER', 'CAME', 'TALKING', 'WITHOUT', 'FREE', 'PROBLEMS', 'AGAINST', 'FORMER','WOMEN', 'MEN', 'COVERAGE', 'USED', 'POINT', 'POOL', 'SOMEBODY', 'STAY', 'WONT', 'EVERYTHING', 'ENOUGH', 'POINTS', 'COLOR', 'MYSELF', 'TOP', 'ENERGY', 'LAUGHS', 'MAKING', 'DING', 'MMM', 'FACT', 'WORTH', 'HELPS', 'FEELING', 'MAYBE', 'LOOKS', 'TV', 'BOY', 'BIRTHDAY', 'NARRATOR', 'DA', 'HOURS', 'THOU', 'HEAR', 'OWN', 'YET', 'SOMEONE', 'EACH', 'HOO', 'THOUGHT', 'HEAR', 'FEET', 'F', 'FAR', 'HOT', 'PLAYING', 'DOESNT', 'INSIDE', 'R', 'FALL', 'EVERYBODY', 'ARMS', 'OHH', 'WHOLE', 'AINT', 'FRIENDS', 'CAUSE', 'MOVE', 'STARTED', 'BYE', 'BIT', 'SELF', 'EVEN','TRY', 'C', 'FOOD', 'O', 'LA', 'CASE', 'HAPPENED', 'OK', 'HOUSE', 'STORY', 'NICE', 'BEST', 'G', 'LIVE', 'LONG', 'AWAY', 'LAST', 'FIND', 'TRYING', 'HARD', 'CAR', 'HELP', 'STOP', 'MEAN', 'ASK', 'MOST', 'AGAIN', 'WAIT','LIFE', 'TEAM', 'KIND', 'NA', 'ALSO', 'A', 'YOULL', 'TO', 'AND', 'SHES', 'SAYING', 'DOES', 'WHERE', 'OF', 'IN', 'FOR', 'WAS', 'ON', 'IS', 'THAT', 'IT', 'BE', 'SAYS', 'THEY', 'WITH', 'YOU', 'THIS', 'WERE', 'WE', 'ARE', 'THEIR', 'I', 'AT', 'THEM', 'BUT', 'BY', 'YOUR', 'OUR', 'HAVE', 'MORE', 'FROM', 'ITS', 'ABOUT', 'NOT', 'HE', 'ALL', 'TONIGHT', 'NEWS', 'ONLY', 'AN', 'WILL', 'HAS', 'CAN', 'WHEN', 'THERE', 'AFTER', 'NOW', 'OUT', 'UP', 'WHO', 'NO', 'BEEN', 'SAY', 'HIS', 'GET', 'MY', 'DO', 'WHAT', 'RIGHT', 'OVER', 'HAD', 'OR', 'SO', 'IF', 'TOO', 'BACK', 'DONT', 'MAY', 'HOW', 'WHY', 'THERES', 'FEW', 'SOME', 'WAY', 'US', 'THINK', 'STILL', 'REPORTER', 'PEOPLE', 'THAN', 'MANY', 'LIKE', 'DAYS', 'IM', 'THANK', 'YES', 'GONNA', 'OH', 'ME', 'APPLAUSE', 'JUST', 'WELL', 'REALLY', 'YOURE', 'THATS', 'GOOD', 'SEE', 'GO', 'AM', 'JUST', 'GOING', 'YEAH', 'LOOK', 'WHATS', 'DID', 'HES', 'WOW', 'BEFORE', 'HI', 'TAKE', 'SOMETHING', 'COME', 'NAME', 'BE', 'DAY', 'B', 'COULD', 'WOULD', 'TIME', 'IVE', 'TELL', 'SAID', 'MUCH', 'SURE', 'ILL', 'SEEN', 'DONE', 'DOING', 'ID', 'SHOULD', 'WANT', 'NEVER', 'GIVE', 'BECAUSE', 'DOWN', 'LOOKING', 'WHOO', 'VERY', 'GUYS', 'WATCH', 'AS', 'HEY','NEXT', 'TAKES', 'LETS', 'WHOA', 'GOT', 'WEEK', 'THING', 'HERE', 'NEED', 'THOSE', 'INTO', 'SHOW', 'MAKE', 'HER', 'ER', 'THEN', 'THEYRE', 'WHILE', 'S', 'SHE', 'EVERY', 'PUT', 'OKAY', 'HAVING', 'HOLD', 'AROUND', 'THANKS', 'TAKING', 'SUCH', 'T', 'ALWAYS', 'NIGHT', 'LOT', 'SAW', 'WHICH', 'HIM', 'WENT', 'COMING', 'YOURSELF', 'THINGS', 'MADE', 'PART', 'BEING', 'HELLO', 'ND', 'THESE', 'ELSE', 'TH', 'STARTS', 'AGO', 'TALK', 'ANY', 'USE', 'ANY', 'ACTUALLY', 'MUST', 'WEVE','LET'];
+	var combineWords = {'DEEZ': 'NUTS', 'NUTSS': 'NUTS', 'SANDERSS' : 'SANDERS', 'BUSHS' : 'BUSH', 'PAULS' : 'PAUL', 'PERRYS' : 'PERRY', 'RUBIOS' : 'RUBIO', 'SANTORUMS' : 'SANTORUM', 'WALKERS' : 'WALKER', 'KASICHS' : 'KASICH', 'TRUMPS' : 'TRUMP', 'BIDENS' : 'BIDEN', 'EVERSONS' : 'EVERSON', 'FIORINAS' : 'FIORINA', 'GILMORES' : 'GILMORE', 'GRAHAMS' : 'GRAHAM', 'HUCKABEES' : 'HUCKABEE', 'JINDALS' : 'JINDAL', 'PATAKIS' : 'PATAKI', 'CLINTONS' : 'CLINTON', 'CHAFEES' : 'CHAFEE', 'OMALLEYS' : 'OMALLEY', 'WEBBS' : 'WEBB', 'CARSONS' : 'CARSON', 'CHRISTIES' : 'CHRISTIE', 'CRUZS' : 'CRUZ', 'EHRLICHS' : 'EHRLICH', 'RAND' : 'PAUL', 'LINCOLN' : 'CHAFEE', 'POLL' : 'POLLS', 'MARTIN' : 'OMALLEY', 'JIM': 'WEBB', 'DONALD' : 'TRUMP', 'JOE' : 'BIDEN', 'HILLARY': 'CLINTON', 'BERNIE': 'SANDERS', 'JEB': 'BUSH', 'JOHN': 'KASICH', 'BEN' : 'CARSON', 'CHRIS' : 'CHRISTIE', 'TED' : 'CRUZ', 'BOB' : 'EHRLICH', 'MARK' : 'EVERSON', 'CARLY' : 'FIORINA', 'JIM' : 'GILMORE', 'LINDSEY' : 'GRAHAM', 'MIKE' : 'HUCKABEE', 'BOBBY' : 'JINDAL' , 'GEORGE' : 'PATAKI', 'RICK' : 'PERRY', 'MARCO' : 'RUBIO', 'SCOTT' : 'WALKER' };
+	var fullNames = {'NUTS' : 'Deez Nuts',
+					'CHAFEE' : 'Lincoln Chafee',
+	                'OMALLEY' : "Martin O'Malley",
+	                'WEBB' : 'Jim Webb',
+	                'CARSON' : 'Ben Carson',
+	                'CHRISTIE' : 'Chris Christie',
+	                'CRUZ' : 'Ted Cruz',
+	                'EHRLICH' : 'Bob Ehrlich',
+	                'EVERSON' : 'Mark Everson',
+	                'FIORINA' : 'Carly Fiorina',
+	                'GILMORE' : 'Jim Gilmore',
+	                'GRAHAM' : 'Lindsey Graham',
+	                'HUCKABEE': 'Mike Huckabee',
+	                'JINDAL' : 'Bobby Jindal',
+	                'PATAKI' : 'George Pataki',
+	                'PAUL' : 'Rand Paul',
+	                'PERRY' : 'Rick Perry',
+	                'RUBIO': 'Marco Rubio',
+	                'SANTORUM' : 'Rick Santorum',
+	                'WALKER' : 'Scott Walker',
+	                'KASICH' : 'John Kasich',
+	                'TRUMP' : 'Donald Trump',
+	                'BIDEN' : 'Joe Biden',
+	                'CLINTON' : 'Hillary Clinton',
+	                'SANDERS' : 'Bernie Sanders',
+	                'BUSH' : 'Jeb Bush'}
+
+	var channels = ["MSNBC", "FOX", "CNN"];
+	var candidates = ["NUTS", "BIDEN", "CHAFEE", "CLINTON", "OMALLEY", "SANDERS", "WEBB", "BUSH", "CARSON", "CHRISTIE", "CRUZ", "EHRLICH", "EVERSON", "FIORINA", "GILMORE", "GRAHAM", "HUCKABEE", "JINDAL", "KASICH", "PATAKI", "PAUL", "PERRY", "RUBIO", "SANTORUM", "TRUMP", "WALKER"];
+
+	var channelColors = {"MSNBC" : [255,100,0], "FOX" : [0,255,0], "CNN" : [0,100,255]};
+
+    var authToken = "";
+	var lastTouch = 0;
+
+	var width = screen.width; //Width of screen
+	var height = screen.height * .9; //Height of screen
+
+	var minNodeSize = 6; // Smallest Nodes to display
+	var minClusterSize = 3;//Minimum nodes in displayed clusters ( might be one more than this number )
+	var chargeMultiplier = -90; //More Negative -> More distance between nodes
+	var radiusMultiplier = .6; //Circle radius = Node size * radiusMultiplier
+	var linkWidthDivisor = 6;//larger -> small link stroke width
+	var linkDistanceMultiplier = 2;//larger -> longer links
+	var minLinkDistance = 13; //minimum link distance
+	var largeNodeSize = 8; //The size at which one more word does not add a whole +1 to size
+	var largeNodeShrinkMultiplier = 5; //larger -> less shrink
+	var minNeighbourConnection = 6; //Neighbours must be this connected to stay neighbours
+	var neighborDistance = 3; //distance of words to be considered neighbors
+	var fisheye = d3.fisheye.circular()
+		.radius(150);//Radius of Zoom lens
+
+	//Toggle stores whether the highlighting is on
+	var toggle = 0;
+	//Create an array logging what is connected to what
+	var linkedByIndex = {};
+
+	var force = d3.layout.force()
+		.gravity(.14)//Strength of centre of screen gravity
+		.size([width, height]);
+
+	var svg = d3.select("#graph").append("svg")
+		.attr("width", width)
+		.attr("height", height)
+		.style("position", "absolute")
+		.style("z-index", 1);
+
+    var circle = new ProgressBar.Circle('#circle', {
+        color: '#FCB03C',
+        strokeWidth: 3,
+        trailWidth: 1,
+        duration: 500,
+        text: {
+            value: '0'
+        },
+        step: function(state, bar) {
+            bar.setText((bar.value() * 100).toFixed(0));
+        }
+    });
+
+    var queryList = [];
+
+	//Functions begin-------------------------------------------------------------------------------
+
+	function startApp (textArray, tToken){
+		console.log("TOKEN: "+ tToken);
+	    authToken = tToken;
+	    console.log(textArray);
+		var data = makeData(textArray);
+		$('#circle').css('display','none');
+		drawGraph(data, authToken);
+		for (i = 0; i < graph.nodes.length; i++) {
+			linkedByIndex[i + "," + i] = 1;
+		};
+		graph.links.forEach(function (d) {
+			linkedByIndex[d.source.index + "," + d.target.index] = 1;
+		});
+	}
+
+    function startVideoFunc () {
+        if (document.getElementById('graph').className !== 'exitingGraph'){
+            //var queryString = "?q=";
+			var queryString = "";
+			for (x in queryList){
+				queryString += " "+ queryList[x];
+			}
+			//window.open("http://google.com/search"+ queryString + "&tbm=nws")
+			console.log(queryList);
+
+			document.getElementById('graph').className = 'exitingGraph';
+			document.getElementById('vid').className = 'enteringVideo';
+
+			var obj = Android.VideoPlay(queryString, [12, 10, 3], authToken);
+			obj = JSON.parse(obj);
+			linkVideo(obj);
+		}
+	}
+
+	function changeChannel(channel){
+	    var queryString = "";
+			for (x in queryList){
+				queryString += " "+ queryList[x];
+			}
+	    var obj = Android.VideoPlay(queryString, [channel], authToken);
+			obj = JSON.parse(obj);
+			linkVideo(obj);
+	}
+
+	function startWebSearchFunc() {
+	    var queryString = "";
+		for (x in queryList){
+			queryString += "+" + queryList[x];
+		}
+	    Android.webSearch("http://google.com/search?q="+ queryString + "&tbm=nws");
+	}
+
+	var linkVideo = function (result){
+		var $target  = "testvid_"+$(this).attr("rel");
+		var $vid_obj = _V_("vid_player");
+		$('#vid').css('display','inline');
+		// hide the current loaded poster
+		$("img.vjs-poster").hide();
+
+		$vid_obj.ready(function() {
+		    // hide the video UI
+		    $("#vid_player_html5_api").hide();
+		    // and stop it from playing
+		    $vid_obj.pause();
+		    // assign the targeted videos to the source nodes
+		    $vid_obj.src([
+			    { type: "video/mp4", src: result["links"][0]["url"] },
+		    	{ type: "video/webm", src: result["links"][1]["url"] },
+		    ]);
+
+	    	// replace the poster source
+		    $("img.vjs-poster").attr("src",result["links"][2]["url"]).show();
+		    // reset the UI states
+		    $(".vjs-big-play-button").show();
+		    $("#vid_player").removeClass("vjs-playing").addClass("vjs-paused");
+		    // load the new sources
+		    $vid_obj.load();
+		    $("#vid_player_html5_api").show();
+		});
+	}
+
+	var removePunctuation = function(inputfile){
+		//returns a string equal to the given string 'inputfile', but without punctuation
+		var words = inputfile.replace(/[\.,-\/#!$%\^&\>>?*";:{}=\-_`'~()\[\]]/g,"");
+		words = words.replace(/\n/g," ");
+		words = words.replace(/[0-9]/g, '');
+		words = words.toUpperCase();
+		return words;
+	}
+
+	var removeBadWords = function(words){
+		//returns a array of words without badwords in the current array of words
+		for (var word = 0; word < words.length; word++){
+				if ($.inArray(words[word], trashWords) >= 0){
+					words.splice(word, 1);
+					word--;
+				}
+				else if (words[word] in combineWords){
+					words[word] = combineWords[words[word]];
+				}
+		}
+		return words;
+	}
+
+	var removeSmallNodes = function(nodes){
+		//returns a array of Nodes without small ones in the current array of words
+		for (var node = nodes.length - 1 ; node > -1; node--){
+			if (nodes[node].size < minNodeSize){
+				nodes.splice(node, 1);
+			}
+
+		}
+		return nodes;
+	}
+
+	var clusterDFS = function(node, groups, groupNum,  indeces, nodes, sameGroup){
+		if(nodes[node].clusterGroup == -1){ //if node doesn't have a group yet
+			nodes[node].clusterGroup = groupNum;
+			groups[groupNum]++;
+			for (neighbour in nodes[node].neighbours){
+				clusterDFS(indeces[neighbour], groups, groupNum, indeces, nodes, sameGroup);
+			}
+		}
+		//node has a group, but it isn't groupNum (combine groups)((should rarely happen, so not a big deal for efficiency)
+		else if (nodes[node].clusterGroup != groupNum && $.inArray(nodes[node].clusterGroup, sameGroup[groupNum]) <= 0){
+			groups[groupNum] += groups[nodes[node].clusterGroup];
+			groups[nodes[node].clusterGroup] = groups[groupNum];
+			sameGroup[groupNum] = sameGroup[groupNum].concat(sameGroup[nodes[node].clusterGroup]);
+			sameGroup[nodes[node].clusterGroup] = sameGroup[groupNum];
+			sameGroup[nodes[node].clusterGroup].push(groupNum);
+			sameGroup[groupNum].push(nodes[node].clusterGroup);
+		}
+		return nodes[node].clusterGroup;
+	}
+
+	var onlyCandidates = function(pwords){
+	    var lastIndex  = 0;
+	    var resWords = [];
+	    index = 0;
+	    for (word in candidates){
+	        index = pwords.indexOf(candidates[word], lastIndex);
+	        while( index > -1){
+	            resWords.push( pwords.slice(index - 3, index + 4));
+	            lastIndex = index + 5;
+	            index = pwords.indexOf(candidates[word], lastIndex);
+	        }
+	        lastIndex = 0;
+	    }
+	    console.log(resWords);
+	    return resWords;
+	}
+
+	var padding = 1, // separation between circles
+    radius=8;
+	function collide(alpha) {
+		var quadtree = d3.geom.quadtree(graph.nodes);
+		return function(d) {
+			var rb = 2*radius + padding,
+			nx1 = d.x - rb,
+			nx2 = d.x + rb,
+			ny1 = d.y - rb,
+			ny2 = d.y + rb;
+			quadtree.visit(function(quad, x1, y1, x2, y2) {
+				if (quad.point && (quad.point !== d)) {
+					var x = d.x - quad.point.x,
+					y = d.y - quad.point.y,
+					l = Math.sqrt(x * x + y * y);
+					if (l < rb) {
+						l = (l - rb) / l * alpha;
+						d.x -= x *= l;
+						d.y -= y *= l;
+						quad.point.x += x;
+						quad.point.y += y;
+					}
+				}
+				return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+			});
+		};
+	}
+
+	function neighboring(a, b) {
+		return linkedByIndex[a.index + "," + b.index];
+	}
+
+	function makeData (text){
+		//alert(text);
+		var progress = .2;
+		circle.animate(progress);
+		console.log(text.length);
+		var words = [];
+		var links = [];
+		var nodes = [];
+		var wordList = [];
+		for (channel in text){
+		    progress = .25;
+		    circle.animate(progress);
+		    //alert("removing punctuation...");
+		    var ptext = removePunctuation(text[channel]);  //-> returns text without punctuation
+		    console.log("splitting text into words...");
+		    words = ptext.split(" "); // -> now we have an array of split words
+		    //console.log(ptext);
+		    //alert("words length : " + words.length);
+		    console.log("removing trash words from split...");
+		    var pwords = removeBadWords(words);	//-> returns split words without words in 'trashwords' array
+		    //alert("pwords length : " + pwords.length);
+		    console.log("removing words unrelated to candidates...");
+		    pwords = onlyCandidates(pwords);
+		    //alert(pwords);
+		    console.log("making nodes and neighbors...");
+		    for (phrase in pwords){
+			    //Adding each word as a appropriately sized node to 'nodes' array
+			    //making nodes
+			progress = .3;
+		    circle.animate(progress);
+			for (word in pwords[phrase]){
+
+
+			    var dNode = $.inArray(pwords[phrase][word], wordList);
+
+			    if (dNode >= 0){ //word is already in the list(AKA already a node):
+				    if (nodes[dNode].size > largeNodeSize){			//If node is already large, dont add a whole 1 to size
+			            nodes[dNode].size += (largeNodeShrinkMultiplier / nodes[dNode].size);
+				        nodes[dNode].hitsnum++;
+				        nodes[dNode].color[channel]++;
+				    }
+				    else{											//else node isn't large yet, so add a whole 1
+				        nodes[dNode].size++;
+				        nodes[dNode].hitsnum++;
+				        nodes[dNode].color[channel]++;
+				    }
+			    }
+			    else{					//word isn't a node yet:
+				    dNode = nodes.length;
+				    wordList.push(pwords[phrase][word]);					//add it to word list
+				    var tempNode = {"name":pwords[phrase][word], "hitsnum": 1,"channel":channels[Math.floor(Math.random() * 3)],
+				     "size":1, "neighbours":{}, "clusterGroup" : -1, "color" : [0,0,0], "veteran" : false};
+				    nodes.push(tempNode);	//add node to nodeList
+				    nodes[dNode].color[channel]++;
+		        }
+
+			    //making 'neighbours' list for each word
+		    	var match = 0;
+			    for (var value = -1 * neighborDistance; value < neighborDistance && value + parseInt(word) + match < pwords[phrase].length; value++){
+				    //console.log(nodes[dNode].neighbours);
+				    if (value + parseInt(word) + match > 0){
+				    	while (value + parseInt(word) + match < pwords[phrase].length - 1 && pwords[phrase][word] == pwords[phrase][parseInt(word) + value + match]){
+					    	match++;
+				    	}
+				    	if ($.inArray(pwords[phrase][parseInt(word) + value + match], Object.keys(nodes[dNode].neighbours)) >= 0){ // if neighbor is in already in neighbors
+						    nodes[dNode].neighbours[pwords[phrase][parseInt(word) + value + match]] += 3 - Math.abs(.75 * value);
+					    }
+					    else{
+						    nodes[dNode].neighbours[pwords[phrase][parseInt(word) + value + match]] = 3 - Math.abs(.4 * value);
+					    }
+				    }
+			    }
+		    }
+		    }
+		}
+		//alert("nodes length : " + nodes.length);
+		console.log("removing unwanted nodes and neighbors...");
+		progress = .5;
+		circle.animate(progress);
+		//remove small nodes
+		nodes = removeSmallNodes(nodes);
+		//index still "alive" nodes
+		var indeces = {};
+		for (node in nodes){
+			indeces[nodes[node].name] = node;
+		}
+		//alert("nodes(without small) length : " + nodes.length);
+		//console.log(indeces);
+
+		//delete neighbors either no longer "alive" or two unconnected
+		for (node in nodes){
+			for(neighbour in nodes[node].neighbours){
+				if(!(neighbour in indeces && nodes[node].neighbours[neighbour] > minNeighbourConnection)){
+					//console.log("removed neighbor: "+ neighbour +" from: "+ nodes[node].name +" ");
+					delete nodes[node].neighbours[neighbour];
+				}
+			}
+		}
+		console.log("mapping clusters...");
+		progress = .6;
+		circle.animate(progress);
+		//Map Clusters (assign cluster groups to each node
+		sameGroup = [];
+		groups = []
+		groupNum = 0;
+		for (node in nodes){
+			if (nodes[node].clusterGroup == -1){
+				groupNum++;
+				sameGroup[groupNum] = [];
+				groups[groupNum] = 0;
+			clusterDFS (node, groups, groupNum,  indeces, nodes, sameGroup)
+			}
+			//console.log(nodes[node].name+", "+nodes[node].clusterGroup+", "+groups[nodes[node].clusterGroup]);
+		}
+		//console.log(groups);
+		console.log("removing small cluster nodes...");
+		progress = .7;
+		circle.animate(progress);
+		//remove nodes in small clusters
+			//add index of nodes to remove to list
+		removeList = [];
+		for (var cNode = 0; cNode < nodes.length; cNode++){
+			if(nodes[cNode].veteran == false && nodes[cNode].name in candidates == false ){
+			if(nodes[cNode].clusterGroup == -1 || groups[nodes[cNode].clusterGroup] < minClusterSize){
+				removeList.push(cNode);
+			}
+			}
+		}
+			//remove nodes
+		var adder = 0;
+		for (var r = 0; r < removeList.length; r++){
+			nodes.splice(removeList[r] + adder, 1);
+			adder --;
+		}
+		//console.log(nodes);
+		console.log("re-indexing...")
+		progress = .75;
+		circle.animate(progress);
+		//re-index words post removing small cluster nodes
+		indeces = {};
+		wordList = []
+		for (node in nodes){
+		    if (nodes[node].name in fullNames){
+		        nodes[node].name = fullNames[nodes[node].name];
+		    }
+			indeces[nodes[node].name] = node;
+			wordList.push(nodes[node].name);
+			nodes[node].veteran = true;
+		}
+		console.log("making links...");
+		progress = .85;
+		circle.animate(progress);
+		//make links
+		for (node in nodes){
+			for( neighbour in nodes[node].neighbours){
+				if(neighbour in indeces){
+					links.push({"source":parseInt(node) ,"target": parseInt(indeces[neighbour]) ,"value": nodes[node].neighbours[neighbour]});
+				}
+			}
+		}
+		console.log("drawing graph...");
+		progress = 1;
+		circle.animate(progress);
+		//return data
+		graph = {};
+		graph.links = links;
+		graph.nodes = nodes;
+		return graph;
+	}
+
+
+	var drawGraph = function(graph, authToken){
+
+        var visibleVid = false;
+        var selection = false;
+
+
+		force.links(graph.links)
+			.nodes(graph.nodes)
+			.charge(function(d) { return Math.log2(d.size) * chargeMultiplier; })
+			.linkDistance(function(d) { return Math.max(minLinkDistance,((((d.source.size + d.target.size)* (radiusMultiplier)) - (.1 * d.value))*linkDistanceMultiplier)); })
+			.start();
+
+		var link = svg.selectAll(".link")
+			.data(graph.links)
+			.enter().append("line")
+			.attr("class", "link")
+			.style("stroke", "darkgrey")
+			.style("stroke-width", function(d) { return (d.value)/linkWidthDivisor; });
+
+		var toggleWidth = (function(d){
+
+        var currentWidth = "0px";
+
+        return function(d){
+		if (d3.select(this).style("stroke-width") == "0px"){
+		 	currentWidth =  "2px";
+		 	queryList.push( d.name);
+		}
+		else{
+			currentWidth = "0px";
+		 	var index = queryList.indexOf(d.name);
+			queryList.splice(index, 1);
+		}
+		if (queryList.length > 0){
+		    document.getElementById("button1").src="file:///android_asset/img/ic_live_tv_black_24dp_2x.png";
+		    document.getElementById("button1").style.zIndex = "20";
+		    document.getElementById("button2").src="file:///android_asset/img/ic_open_in_browser_black_24dp_2x.png";
+		    document.getElementById("button2").style.zIndex = "20";
+		}
+		else{
+		    document.getElementById("button1").src="file:///android_asset/img/ic_live_tv_grey_24dp_2x.png";
+		    document.getElementById("button1").style.zIndex = "-1";
+		    document.getElementById("button2").src="file:///android_asset/img/ic_open_in_browser_grey_24dp_2x.png";
+		    document.getElementById("button2").style.zIndex = "-1";
+		}
+        d3.select(this).style("stroke-width", currentWidth);
+        }
+        })();
+
+        var startVideo = function(){
+				//var queryString = "?q=";
+				var queryString = "";
+				for (x in queryList){
+					//queryString += "+" + queryList[x];
+					queryString += " "+ queryList[x];
+				}
+				//window.open("http://google.com/search"+ queryString + "&tbm=nws")
+				var obj = Android.VideoPlay(queryString, [12, 10, 3], authToken);
+				console.log(queryList);
+				console.log(obj);
+				obj = JSON.parse(obj);
+				console.log(obj);
+				document.getElementById('vid').className = 'enteringVideo';
+				document.getElementById('graph').className = 'exitingGraph';
+				linkVideo(obj);
+		};
+
+		var node = svg.selectAll(".node")
+			.data(graph.nodes)
+			.enter().append("g")
+			.attr("class", "node")
+			.style("fill", "white")
+			.style("stroke", "red")
+			.call(force.drag)
+			.style("stroke-width", 0);
+
+		node.append("circle")
+			.attr("r", function(d) { return d.size * radiusMultiplier; })
+			.attr("data-legend",function(d) { return d.channel})
+			.attr("data-legend-color",function(d) { return d3.rgb(channelColors[d.channel][0],channelColors[d.channel][1], channelColors[d.channel][2])})
+			.style("fill", function(d) {; return d3.rgb((d.color[0]/d.hitsnum)*255, (d.color[1]/d.hitsnum)*155 + 100, (d.color[2]/d.hitsnum)*255)})
+			.style("opacity", .98);
+
+		node.append("text")
+			.attr("text-anchor", "middle")
+			.attr("class", "noselect")
+			.style("fill", "black")
+			.style("stroke", "none")
+			.style("font-family", "sans-serif")
+			.style("font-size", "10px")
+			.style("font-weight", "400")
+			.style("font-family", "Amaranth")
+			.style("text-shadow", "-1px 0 white, 0 1px white, 1px 0 white, 0 -1px white")
+			.text(function(d) { return d.name; });
+
+		node.on("mousedown", toggleWidth);
+
+		legend = svg.append("g")
+			.attr("class","legend")
+			.attr("transform","translate(20,60)")
+			.style("font-size","12px")
+			.call(d3.legend)
+
+		force.on("tick", function() {
+			link.attr("x1", function(d) { return d.source.x; })
+				.attr("y1", function(d) { return d.source.y; })
+				.attr("x2", function(d) { return d.target.x; })
+				.attr("y2", function(d) { return d.target.y; });
+
+			node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+			node.each(collide(0.5)); //collision detection
+		});
+
+		console.log("done");
+
+		//Mouse Down
+		svg.on("mousedown", function(){
+			force.alpha(0.1);
+			svg.on("mousemove", function(){
+				fisheye.focus(d3.mouse(this));
+
+				node.each(function(d) { d.fisheye = fisheye(d); });
+
+				/*
+				node.selectAll("circle")
+					.attr("cx", function(d) {return d.fisheye.x - d.x; })
+					.attr("cy", function(d) { return d.fisheye.y - d.y; })
+					.attr("r", function(d) { if(d.fisheye.z > 1 )
+												{return 0;}
+											else{return d.size * radiusMultiplier}
+											})
+				*/
+
+				node.selectAll("text")
+					.attr("dx", function(d) { return d.fisheye.x - d.x; })
+					.attr("dy", function(d) { return d.fisheye.y - d.y; })
+					.style("font-size", function(d) {return String(10 + ((d.fisheye.z-1) * 7))+"px"});
+			});
+		});
+
+		//Mouse Up
+		svg.on("mouseup", function(){
+			force.alpha(0.1);
+			fisheye.focus(d3.mouse(this));
+			node.each(function(d) { d.fisheye = fisheye(d); });
+
+			node.selectAll("circle")
+				.attr("cx", function(d) {  return d.cx; })
+				.attr("cy", function(d) { return d.cy; })
+				.attr("r", function(d) { return d.size * radiusMultiplier;});
+
+			node.selectAll("text")
+				.attr("dx", 0)
+				.attr("dy", 4.5)
+				.style("font-size", "10px");
+
+			node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+			svg.on("mousemove", function(){
+			});
+		});
+
+
+	}
+
+	function touchHandler(event){
+		var touches = event.changedTouches,
+        first = touches[0],
+        type = "";
+		var now = new Date().getTime();
+
+		if(event.type == "touchstart"){
+			if( now - lastTouch < 250){
+				type = "dblclick";
+			}
+			else{
+				type = "mousedown";
+			}
+			lastTouch = now;
+		}
+		else{
+			switch(event.type)
+			{
+			case "touchmove":  type = "mousemove"; break;
+			case "touchend":   type = "mouseup";   break;
+			default:           return;
+			}
+		}
+
+    // initMouseEvent(type, canBubble, cancelable, view, clickCount,
+    //                screenX, screenY, clientX, clientY, ctrlKey,
+    //                altKey, shiftKey, metaKey, button, relatedTarget);
+
+		var simulatedEvent = document.createEvent("MouseEvent");
+		simulatedEvent.initMouseEvent(type, true, true, window, 1,
+                                  first.screenX, first.screenY,
+                                  first.clientX, first.clientY, false,
+                                  false, false, false, 0/*left*/, null);
+
+		first.target.dispatchEvent(simulatedEvent);
+		event.preventDefault();
+	}
+
+document.addEventListener("touchstart", touchHandler, true);
+document.addEventListener("touchmove", touchHandler, true);
+document.addEventListener("touchend", touchHandler, true);
+document.addEventListener("touchcancel", touchHandler, true);
+</script>
+
+</body>

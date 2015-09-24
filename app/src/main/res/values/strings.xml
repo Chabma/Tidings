@@ -1,0 +1,46 @@
+<resources>
+    <string name="app_name">Tidings</string>
+
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_clip_selection">Change Clip</string>
+    <string name="action_leave_video">Back</string>
+    <string name="action_enter_video">Play</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string name="feedbackprompt">Choose a candidate</string>
+    <string name="feedbackbutton">Submit</string>
+
+    <string name="feedbacktype1">Jeb Bush</string>
+    <string name="feedbacktype2">Donald Trump</string>
+    <string name="feedbacktype3">Joe Biden</string>
+    <string name="feedbacktype4">Hillary Clinton</string>
+    <string name="feedbacktype5">Bernie Sanders</string>
+    <string name="feedbacktype6">Lincoln Chafee</string>
+    <string name="feedbacktype7">Martin O\'Malley</string>
+    <string name="feedbacktype8">Jim Webb</string>
+    <string name="feedbacktype9">Ben Carson</string>
+    <string name="feedbacktype10">Chris Christie</string>
+    <string name="feedbacktype11">Ted Cruz</string>
+    <string name="feedbacktype12">Bob Ehrlich</string>
+    <string name="feedbacktype13">Mark Everson</string>
+    <string name="feedbacktype14">Carly Fiorina</string>
+    <string name="feedbacktype15">Jim Gilmore</string>
+    <string name="feedbacktype16">Lindsey Graham</string>
+    <string name="feedbacktype17">Mike Huckabee</string>
+    <string name="feedbacktype18">Bobby Jindal</string>
+    <string name="feedbacktype19">George Pataki</string>
+    <string name="feedbacktype20">Rand Paul</string>
+    <string name="feedbacktype21">Rick Perry</string>
+    <string name="feedbacktype22">Marco Rubio</string>
+    <string name="feedbacktype23">Rick Santorum</string>
+    <string name="feedbacktype24">Scott Walker</string>
+    <string name="feedbacktype25">John Kasich</string>
+
+</resources>

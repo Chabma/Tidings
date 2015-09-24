@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="feedbacktypelist">
+        <item>@string/feedbacktype1</item>
+        <item>@string/feedbacktype2</item>
+        <item>@string/feedbacktype3</item>
+        <item>@string/feedbacktype4</item>
+        <item>@string/feedbacktype5</item>
+        <item>@string/feedbacktype6</item>
+        <item>@string/feedbacktype7</item>
+        <item>@string/feedbacktype8</item>
+        <item>@string/feedbacktype9</item>
+        <item>@string/feedbacktype10</item>
+        <item>@string/feedbacktype11</item>
+        <item>@string/feedbacktype12</item>
+        <item>@string/feedbacktype13</item>
+        <item>@string/feedbacktype14</item>
+        <item>@string/feedbacktype15</item>
+        <item>@string/feedbacktype16</item>
+        <item>@string/feedbacktype17</item>
+        <item>@string/feedbacktype18</item>
+        <item>@string/feedbacktype19</item>
+        <item>@string/feedbacktype20</item>
+        <item>@string/feedbacktype21</item>
+        <item>@string/feedbacktype22</item>
+        <item>@string/feedbacktype23</item>
+        <item>@string/feedbacktype24</item>
+    </string-array>
+</resources>

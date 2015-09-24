@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.arc path {
+  stroke: #fff;
+}
+
+</style>
+<body>
+<div height = 40></div>
+<p>If you had to vote one of the candidates into office as President today, who would it be? :</p>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+<script>
+function startApp(data, formData){
+var width = 270,
+    height = 270,
+    radius = Math.min(width, height) / 3;
+
+var color = d3.scale.ordinal()
+    .range(["#a05d56", "#d0743c", "#ff8c00"]);
+
+
+var dataOne = data.questionOne;
+var dataTwo = data.questionTwo;
+
+var question2 = formData.question;
+
+console.log(dataOne);
+console.log(dataTwo);
+
+
+var arc = d3.svg.arc()
+    .outerRadius(radius - 10)
+    .innerRadius(radius - 40);
+
+
+var pie = d3.layout.pie()
+    .sort(null)
+    .value(function(d) { return d.count; });
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .append("g")
+    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+var g = svg.selectAll(".arc")
+    .data(pie(dataOne))
+    .enter().append("g")
+    .attr("class", "arc");
+
+g.append("path")
+    .style("fill", function(d) { return color(d.data.name); })
+    .transition().duration(500)
+    .attrTween('d', function(d) {
+        var i = d3.interpolate(d.startAngle+0.1, d.endAngle);
+        return function(t) {
+            d.endAngle = i(t);
+            return arc(d);
+        }
+    });
+
+g.append("text")
+    .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+    .attr("dy", ".35em")
+    .style("text-anchor", "middle")
+    .text(function(d) { return d.data.name; });
+
+//--SECOND DONUT---------------------------------------
+var iDiv = document.createElement('div');
+document.getElementsByTagName('body')[0].appendChild(iDiv);
+iDiv.innerHTML = question2;
+
+var svg2 = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .append("g")
+    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+var j = svg2.selectAll(".arc")
+    .data(pie(dataTwo))
+    .enter().append("g")
+    .attr("class", "arc");
+
+j.append("path")
+    .style("fill", function(d) { return color(d.data.name); })
+    .transition().duration(500)
+    .attrTween('d', function(d) {
+        var i = d3.interpolate(d.startAngle+0.1, d.endAngle);
+        return function(t) {
+            d.endAngle = i(t);
+            return arc(d);
+        }
+    });
+
+j.append("text")
+    .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+    .attr("dy", ".35em")
+    .style("text-anchor", "middle")
+    .text(function(d) { return d.data.name; });
+}
+
+</script>
