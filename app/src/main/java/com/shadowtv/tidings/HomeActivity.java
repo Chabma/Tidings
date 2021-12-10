@@ -292,8 +292,8 @@ public class HomeActivity extends ActionBarActivity
 
                     //Create JSONObject here
                     JSONObject jsonParam = new JSONObject();
-                    jsonParam.put("username", "shadowtv");
-                    jsonParam.put("password", "630ninth");
+                    jsonParam.put("username", "USERNAME");
+                    jsonParam.put("password", "PASSWORD");
                     // Send POST output.
                     printout = new DataOutputStream(urlConn.getOutputStream());
                     String str = jsonParam.toString();
